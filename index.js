@@ -63,6 +63,13 @@ framework.hears(/help|what can i (do|say)|what (can|do) you do/i, function (bot,
     .catch((e) => console.error(`Problem in help hander: ${e.message}`));
 });
 
+framework.hears('hola', function (bot, trigger) {
+  console.log(`saludaron`);
+  responded = true;
+  bot.say(`Hello ${trigger.person.displayName}.`)
+  .catch((e) => console.error(`Problem in help hander: ${e.message}`));
+});
+
 /* On mention with command
 ex User enters @botname framework, the bot will write back in markdown
 */
