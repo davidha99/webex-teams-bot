@@ -3,6 +3,9 @@ logs
 *.log
 npm-debug.log*
 
+# ngrok
+config-template.json
+
 # Runtime data
 pids
 *.pid
