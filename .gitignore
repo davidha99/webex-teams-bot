@@ -3,6 +3,9 @@ logs
 *.log
 npm-debug.log*
 
+# Packages
+package-lock.json
+
 # ngrok
 config-template.json
 
