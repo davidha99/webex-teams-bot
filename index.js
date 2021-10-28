@@ -31,10 +31,10 @@ framework.on('spawn', (bot, id, actorId) => {
     // Lets find out more about them..
     var msg = 'You can say `help` to get the list of words I am able to respond to.';
     bot.webex.people.get(actorId).then((user) => {
-      msg = `Hello there ${user.displayName}. ${msg}`; 
+      msg = `Hello there ${user.displayName}. ${msg}`;
     }).catch((e) => {
       console.error(`Failed to lookup user details in framwork.on("spawn"): ${e.message}`);
-      msg = `Hello there. ${msg}`;  
+      msg = `Hello there. ${msg}`;
     }).finally(() => {
       // Say hello, and tell users what you do!
       if (bot.isDirect) {
@@ -113,7 +113,7 @@ framework.hears("say hi to everyone", function (bot) {
   console.log("say hi to everyone.  Its a party");
   responded = true;
   // Use the webex SDK to get the list of users in this space
-  bot.webex.memberships.list({roomId: bot.room.id})
+  bot.webex.memberships.list({ roomId: bot.room.id })
     .then((memberships) => {
       for (const member of memberships.items) {
         if (member.personId === bot.person.id) {
@@ -170,6 +170,103 @@ let cardJSON =
     }]
 };
 
+let cardLicensePlate =
+{
+  type: "AdaptiveCard",
+  body: [
+    {
+      type: "ColumnSet",
+      columns: [
+        {
+          type: "Column",
+          items: [
+            {
+              type: "Image",
+              style: "Person",
+              url: "https://developer.webex.com/images/webex-teams-logo.png",
+              size: "Medium",
+              height: "50px"
+            }
+          ],
+          width: "auto"
+        },
+        {
+          type: "Column",
+          items: [
+            {
+              type: "TextBlock",
+              text: "MerakiBot",
+              weight: "Lighter",
+              color: "Accent"
+            },
+            {
+              type: "TextBlock",
+              weight: "Bolder",
+              text: "Placa Registrada",
+              wrap: true,
+              color: "Light",
+              size: "Large",
+              spacing: "Small"
+            }
+          ],
+          width: "stretch"
+        }
+      ]
+    },
+    {
+      type: "ColumnSet",
+      columns: [
+        {
+          type: "Column",
+          width: 35,
+          items: [
+            {
+              type: "TextBlock",
+              text: "Fecha:",
+              color: "Light"
+            }
+          ]
+        },
+        {
+          type: "Column",
+          width: 65,
+          items: [
+            {
+              type: "TextBlock",
+              text: 'Date will appear here!',
+              color: "Light"
+            }
+          ]
+        }
+      ],
+      spacing: "Padding",
+      horizontalAlignment: "Center"
+    },
+    {
+      type: "Image",
+      style: "Person",
+      url: "https://developer.webex.com/images/webex-teams-logo.png",
+      height: "200px",
+      width: "400px"
+    },
+    {
+      type: "ActionSet",
+      actions: [
+        {
+          type: "Action.Submit",
+          title: "OK",
+          data: {
+            subscribe: true
+          }
+        }
+      ],
+      spacing: "None"
+    }
+  ],
+  $schema: "http://adaptivecards.io/schemas/adaptive-card.json",
+  version: "1.2"
+}
+
 /* On mention with card example
 ex User enters @botname 'card me' phrase, the bot will produce a personalized card - https://developer.webex.com/docs/api/guides/cards
 */
@@ -184,13 +281,30 @@ framework.hears('card me', function (bot, trigger) {
   bot.sendCard(cardJSON, 'This is customizable fallback text for clients that do not support buttons & cards');
 });
 
+/* On mention with placa example
+ex User enters @botname 'placa' phrase, the bot will produce a personalized card - https://developer.webex.com/docs/api/guides/cards
+*/
+
+framework.hears('placa', function (bot, trigger) {
+  console.log("someone asked for placas");
+  responded = true;
+
+  let avatar = trigger.person.avatar;
+
+  // Get today date in format: "Thursday, Oct 28, 2021"
+  let now = new Date().toLocaleDateString('en-us', { weekday: "long", year: "numeric", month: "short", day: "numeric" })
+  cardLicensePlate.body[2].url = (avatar) ? avatar : `${config.webhookUrl}/missing-avatar.jpg`;
+  cardLicensePlate.body[1].columns[1].items[0].text = now;
+  bot.sendCard(cardLicensePlate, 'The delivery car just arrived');
+});
+
 /* On mention reply example
 ex User enters @botname 'reply' phrase, the bot will post a threaded reply
 */
 framework.hears('reply', function (bot, trigger) {
   console.log("someone asked for a reply.  We will give them two.");
   responded = true;
-  bot.reply(trigger.message, 
+  bot.reply(trigger.message,
     'This is threaded reply sent using the `bot.reply()` method.',
     'markdown');
   var msg_attach = {
